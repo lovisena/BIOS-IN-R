@@ -1,5 +1,13 @@
+#last ned pakker
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+
 # Read command-line arguments
 args <- commandArgs(trailingOnly = TRUE)
+
+
 species_a <- args[1] # The first argument is the name of the first species
 
 # EXERCISE: Store the second arguments as species_b.
@@ -23,35 +31,34 @@ species_colours <- c(
 )
 
 # Keep only data from the selected species
-iris_subset <- iris_data[iris_data$Species %in% selected_species, ]
+selected_iris <- iris_data %>%
+  filter(Species %in% selected_species)
 
 # EXERCISE: Create an output filename using species_a and species_b.
 output_file <- paste0( "iris_", species_a,"_vs_", species_b, ".png")
 
 
 # Open plot
-png(
+petal_plot <- ggplot(
+  data = selected_iris,
+  mapping = aes(
+    x = Petal.Width,
+    y = Petal.Length,
+    colour = Species
+  )
+) +
+  geom_point() +
+  labs(
+    title = paste(species_a, "and", species_b),
+    x = "Petal width",
+    y = "Petal length",
+    colour = "Species"
+  )
+ggsave(
   filename = output_file,
+  plot = petal_plot,
   width = image_size,
-  height = image_size
+  height = image_size,
+  units = "px",
+  dpi = 300
 )
-
-plot(
-  Petal.Length ~ Petal.Width,
-  data = iris_subset,
-  col = species_colours[as.character(iris_subset$Species)],
-  pch = 19,
-  xlab = "Petal width",
-  ylab = "Petal length",
-  main = paste(species_a, "and", species_b)
-)
-
-legend(
-  "topleft",
-  legend = selected_species,
-  col = species_colours[selected_species],
-  pch = 19,
-  bty = "n"
-)
-
-dev.off() # Close plot
